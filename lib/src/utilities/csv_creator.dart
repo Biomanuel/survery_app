@@ -11,7 +11,7 @@ class SurveyStorage {
   String _surveyName;
 
   SurveyStorage(this.surveyKey) {
-    _surveyName = surveyKey == App.kBreastKey
+    _surveyName = surveyKey != App.kBreastKey
         ? "Cervical Cancer Survey"
         : "Breast Cancer Survey";
   }

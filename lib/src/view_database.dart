@@ -197,17 +197,12 @@ class _ViewAllPageState extends State<ViewAllPage> {
               floatingActionButton: FloatingActionButton(
                 onPressed: () async {
                   FocusScope.of(context).requestFocus(FocusNode());
-                  // setState(() {
-                  //   filterByUser = !filterByUser;
-                  // });
-                  print("Floating action button clicked! Start conversion");
 
-                  // QueryDocumentSnapshot docSnap = FirebaseFirestore.instance.collection(App.kCervicalKey).where("deleted", isEqualTo: false).limit(1).snapshots().first.whenComplete(() => null);
+                  setState(() {
+                    filterByUser = !filterByUser;
+                  });
 
-                  SurveyStorage storage = SurveyStorage(
-                      displayBreastSurveys ? App.kBreastKey : App.kCervicalKey);
-
-                  storage.writeSurvey(null);
+                  // convertToCSV();
 
                   return;
                 },
@@ -397,6 +392,35 @@ class _ViewAllPageState extends State<ViewAllPage> {
         ],
       ),
     );
+  }
+
+  void convertToCSV() {
+    print("Floating action button clicked! Start conversion");
+
+    // QueryDocumentSnapshot docSnap = FirebaseFirestore.instance.collection(App.kCervicalKey).where("deleted", isEqualTo: false).limit(1).snapshots().first.whenComplete(() => null);
+
+    SurveyStorage storage = SurveyStorage(App.kBreastKey);
+
+    List<Survey> surveys;
+
+    print("Processing... ");
+    Future<QuerySnapshot> surveysSnapshot = FirebaseFirestore.instance
+        .collection(App.kBreastKey)
+        .where("deleted", isEqualTo: false)
+        .get()
+        .then((value) {
+      print("Still processing... ");
+      surveys =
+          value.docs.map<Survey>((snap) => Survey.fromSnapshot(snap)).toList();
+
+      print("The length of the survey is ${surveys.length}");
+
+      storage.writeSurvey(surveys);
+
+      print("Done");
+
+      return value;
+    });
   }
 
   Widget buildSurveyList({AsyncSnapshot<QuerySnapshot> snapshot, query}) {
